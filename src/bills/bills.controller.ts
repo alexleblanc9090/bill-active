@@ -1,12 +1,18 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { BillsService } from './bills.service';
+import { CreateBillsDto } from './dto/createBill.dto';
 
 @Controller('bills')
 export class BillsController {
-  constructor(private readonly appService: BillsService) {}
+  constructor(private readonly billService: BillsService) {}
 
   @Get()
   getBill(): string {
-    return this.appService.getBill();
+    return this.billService.getBill();
+  }
+
+  @Post()
+  public async createBill(@Body() bill: CreateBillsDto): Promise<string>{
+    return await this.billService.addBill(bill);
   }
 }
