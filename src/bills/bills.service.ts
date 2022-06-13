@@ -7,7 +7,7 @@ export class BillsService {
     return 'This is a bill';
   }
 
-  async addBill(bill : CreateBillsDto): Promise<string>{
+  async addBill(bill : CreateBillsDto): Promise<String>{
     return bill.picture;
   }
 }
