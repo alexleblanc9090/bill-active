@@ -1,0 +1,1 @@
+{"version":3,"file":"createBill.dto.js","sourceRoot":"","sources":["../../../src/bills/dto/createBill.dto.ts"],"names":[],"mappings":";;;AAAA,MAAa,cAAc;IACvB,YACW,YAAkB,EAClB,IAAY,EACZ,KAAa,EACb,MAAc,EACd,OAAe;QAJf,iBAAY,GAAZ,YAAY,CAAM;QAClB,SAAI,GAAJ,IAAI,CAAQ;QACZ,UAAK,GAAL,KAAK,CAAQ;QACb,WAAM,GAAN,MAAM,CAAQ;QACd,YAAO,GAAP,OAAO,CAAQ;IACvB,CAAC;CACP;AARD,wCAQC"}
