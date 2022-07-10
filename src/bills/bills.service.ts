@@ -1,13 +1,19 @@
+import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import { CreateBillsDto } from './dto/createBill.dto';
+import { Bill, BillDocument } from './schemas/bill.schema';
 
 @Injectable()
 export class BillsService {
-  getBill(): string {
-    return 'This is a bill';
+  constructor(@InjectModel(Bill.name) private billModel: Model<BillDocument>) {}
+
+  async findAll(): Promise<Bill[]> {
+    return this.billModel.find().exec();
   }
 
-  async addBill(bill : CreateBillsDto): Promise<String>{
-    return bill.picture;
+  async create(createBillDto: CreateBillsDto): Promise<Bill> {
+    const createdBill = new this.billModel(createBillDto);
+    return createdBill.save();
   }
 }

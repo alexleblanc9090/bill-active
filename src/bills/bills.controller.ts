@@ -1,30 +1,34 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { stringify } from 'querystring';
+import { Controller, Get, Param, Post, Logger, Body, Response } from '@nestjs/common';
 import { BillsService } from './bills.service';
 import { CreateBillsDto } from './dto/createBill.dto';
+import {Bill} from './schemas/bill.schema';
 
 @Controller('bills')
 export class BillsController {
   constructor(private readonly billService: BillsService) {}
 
+
+  //TODO: Add parameter userId to this method.
   @Get()
-  public getBill(): string {
-    return this.billService.getBill();
+  public async getBills(): Promise<Bill[]> {
+    return await this.billService.findAll();
   }
 
   @Post()
   public async createBill
   (
-    @Param('date') date: Date, 
-    @Param('name') name: String, 
-    @Param('store') store: String,
-    @Param('amount') amount: Number,
-    @Param('picture') picture: String
-  ): Promise<String> {
-    var errorMessage = await this.isBillValid(date, name, store, amount, picture);
-    if(errorMessage != null)
-      return errorMessage; //Contains the error message if the entry is invalid.
-    return this.billService.addBill(new CreateBillsDto(date, name, store, amount, picture));
+    @Body('date') date: String, 
+    @Body('name') name: String, 
+    @Body('store') store: String,
+    @Body('amount') amount: Number,
+    @Body('picture') picture: String
+  ): Promise<Bill> {
+    var datePurchase = date != null ? this.convertToDate(date) : null;
+    var errorMessage: String = await this.isBillValid(datePurchase, name, store, amount, picture);
+    if(errorMessage != null){
+        Logger.debug(errorMessage);
+    }
+    return await this.billService.create(new CreateBillsDto(this.convertToDate(date), name, store, amount, picture));
   }
 
   private async isBillValid(
@@ -32,27 +36,43 @@ export class BillsController {
     name: String, 
     store:String, 
     amount:Number, 
-    picture: String): Promise<string>{
+    picture: String): Promise<String>{
+    Logger.debug(date);
+    Logger.debug(name);
+    Logger.debug(store);
+    Logger.debug(amount);
+    Logger.debug('picture');
+
+    var errorMessage: String = "";
     //Check if entries or not null/empty.
     if(!date || !name || !store || !amount || !picture)
-      return "Invalid entry. All fields are required.";
+      errorMessage = 'Invalid entry. All fields are required.\n';
     //Check if date is valid.  
     if(!(date instanceof Date))
-      return "Invalid entry. Date is not a valid date.";
+      errorMessage += 'Invalid entry. Date is not a valid date.\n';
     //Check if amount is valid.   
     if(!(amount instanceof Number))
-      return "Invalid entry. Amount is not a valid number.";
+      errorMessage += 'Invalid entry. Amount is not a valid number.\n';
     //Check if picture is valid.
     if(!(picture instanceof String))
-      return "Invalid entry. Picture is not a valid string.";
+      errorMessage += 'Invalid entry. Picture is not a valid string.\n';
     //Check if name is valid.
     if(!(name instanceof String))
-      return "Invalid entry. Name is not a valid string.";
+      errorMessage += 'Invalid entry. Name is not a valid string.\n';
     //Check if store is valid.
     if(!(store instanceof String))
-      return "Invalid entry. Store is not a valid string.";
+      errorMessage += 'Invalid entry. Store is not a valid string.\n';
 
-    return null;//If all entries are valid, return null.
+    return errorMessage != "" ? errorMessage : null; //If all entries are valid, return null.
+  }
+
+  //TODO: Move this to a helper class. Add Validation. 
+  private convertToDate(date: String): Date{
+    var dateArray = date != null ? date.split('-') : null;
+    Logger.debug(dateArray);
+    if(dateArray == null || dateArray.length != 3)
+      return null;
+    return new Date(Number.parseInt(dateArray[0]), Number.parseInt(dateArray[1]) - 1, Number.parseInt(dateArray[2]));
   }
 }
 
